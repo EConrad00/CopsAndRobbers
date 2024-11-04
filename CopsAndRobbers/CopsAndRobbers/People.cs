@@ -35,10 +35,10 @@ namespace CopsAndRobbers
 
         private void CreateGoods(List<Goods> goods)
         {
-            goods.Add(new Belonings("keys"));
-            goods.Add(new Belonings("phone"));
-            goods.Add(new Belonings("dosh"));
-            goods.Add(new Belonings("watch"));
+            goods.Add(new Belongings("keys"));
+            goods.Add(new Belongings("phone"));
+            goods.Add(new Belongings("dosh"));
+            goods.Add(new Belongings("watch"));
         }
     }
     class Robber : People

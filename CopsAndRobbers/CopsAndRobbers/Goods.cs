@@ -15,9 +15,9 @@ namespace CopsAndRobbers
             ItemName = itemName;
         }
     }
-    class Belonings : Goods
+    class Belongings : Goods
     {
-        public Belonings(string stolenItemName) : base(stolenItemName)
+        public Belongings(string stolenItemName) : base(stolenItemName)
         {
 
         }

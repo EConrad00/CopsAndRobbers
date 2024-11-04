@@ -20,22 +20,31 @@
             //    }
             //}
             //Console.ReadLine();
-
-            City City = new City(12, 12, 12, 20, 50);
-            City.DisplayLocation();
-            //StolenGoods stolenGoods = new StolenGoods(City.Peoples[0].Goods[0].ItemName);
+            Console.CursorVisible = false;
+            City city = new City(12, 12, 12, 20, 80, 0, 0);
+            Prison prison = new Prison(20, 10, 0, 22);
+            city.DisplayLocation();
+            prison.DisplayLocation();
             
             while (true)
             {
-
-                for (int i = 0; i < City.Peoples.Count; i++)
+                foreach (People people in city.Peoples)
                 {
-                    Helpers.Movement2(i, City);
-                    City.DisplayPeople(i);
 
+                    people.Move(city);
+                    city.UpdateCityGrid(people);
+                    city.DisplayPeople(people);
                 }
+                //bool test = (city.CityGrid.TryGetValue((1, 1), out List<int> index));
+                //Console.WriteLine(test);
+                //for (int i = 0; i < City.Peoples.Count; i++)
+                //{
+                //    Helpers.Movement2(i, City);
+                //    City.DisplayPeople(i);
 
-                Console.ReadKey(true);
+                //}
+
+                Thread.Sleep(200);
             }
         }
     }

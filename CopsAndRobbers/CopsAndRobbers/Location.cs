@@ -13,7 +13,8 @@ namespace CopsAndRobbers
         public int Height { get; set; }
         public int Width { get; set; }
         public List<string> News { get; set; }
-        public List<Robber> Prisoners { get; set; }
+        public bool NewNews { get; set; }
+        public List<int> Prison { get; set; }
         public List<People> Peoples { get; set; }
         
         public Dictionary<(int, int), List<int>> CityGrid { get; set; }
@@ -26,125 +27,80 @@ namespace CopsAndRobbers
             StartPosY = startPosY;
             CityGrid = new Dictionary<(int, int), List<int>>();
             Peoples = new List<People>();
-            //DisplayLocation();
-        }
-
-        public void DisplayPeople(People person)
-        {
-            //for (int i = 0; i < Peoples.Count; i++)
-            //{
-                Console.SetCursorPosition(person.PosX, person.PosY);
-                if (person is Citizen)
-                {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write("C");
-                }
-                else if (person is Robber)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("R");
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("P");
-                }
-                Console.ForegroundColor= ConsoleColor.White;
-           // }
-        }
-       
-
-        public void Interaction()
-        {
-
-        }
-
-        
-
-        public void DisplayLocation() // Draws city border
-        {
-            for (int col = StartPosY; col <= (StartPosY + Height); col++)
-            {
-                Console.SetCursorPosition(StartPosX, col);
-                for (int row = StartPosX; row <= (StartPosX + Width); row++)
-                {
-
-                    if (col == StartPosY || col == (StartPosY + Height) || row == StartPosX || row == (StartPosX + Width))
-                    {
-                        Console.Write("X");
-                    }
-                    else
-                    {
-                        Console.Write(" ");
-                    }
-                }
-                Console.WriteLine();
-            }
         }
        
     }
     class City: Location
     {
-        public int AmmountOfCitizen { get; }
-        public int AmmountOfTheifs { get; }
-        public int AmmountOfCops { get; }
-        public City(int ammountOfCitizen, int ammountOfTheifs, int ammountOfCops, int height, int width, int startPosX, int startPosY) : base(height, width, startPosX, startPosY)
+        public int AmmountOfCitizen { get; set; }
+        public int AmmountOfThiefs { get; set; }
+        public int AmmountOfCops { get; set; }
+        
+        
+        public City(int ammountOfCitizen, int ammountOfThiefs, int ammountOfCops, int height, int width, int startPosX, int startPosY) : base(height, width, startPosX, startPosY)
         {
-            CreatePeople(Peoples, ammountOfCitizen, ammountOfTheifs, ammountOfCops);
-            InitCityGrid();
+            News = new List<string>();
+            Prison = new List<int> { (Height + 12), 20, 1, (Height + 2) };
+            AmmountOfCitizen = ammountOfCitizen;
+            AmmountOfCops = ammountOfCops;
+            AmmountOfThiefs = ammountOfThiefs;
+            CreatePeople(Peoples, ammountOfCitizen, ammountOfThiefs, ammountOfCops);
         }
-        private void InitCityGrid()
+        public void InitCityGrid()
         {
             for (int i = 0; i < Peoples.Count(); i++)
             {
-                UpdateCityGrid(Peoples[i]);
+                if (CityGrid.TryGetValue((Peoples[i].PosX, Peoples[i].PosY), out List<int> indexList))  //Bryta ut till egen metod... Fixat
+                {
+                    indexList.Add(Peoples[i].Id);
+                }
+                else
+                {
+                    CityGrid.Add((Peoples[i].PosX, Peoples[i].PosY), new List<int> { Peoples.IndexOf(Peoples[i]) });
+                }
+                Render.DisplayPeople(Peoples[i]);
             }
         }
 
         public void UpdateCityGrid(People people)
         {
             
-            if (CityGrid.TryGetValue((people.PosX, people.PosY), out List<int> indexList))  //Bryta ut till egen metod... Fixat
+            if (CityGrid.TryGetValue((people.PosX, people.PosY), out List<int> indexList)) // Kollar ifall någon finns på samma position
             {
                 for (int i = 0; i < indexList.Count(); i++)
                 {
-                    people.Interaction(Peoples[indexList[i]]); // Skapa interaction
+                    people.Interaction(Peoples[indexList[i]], this);
+                    NewNews = true;
                 }
-                indexList.Add(Peoples.IndexOf(people));
                 
-                //CityGrid.Add(people.PosX, people.PosY), 
-               
+                if(indexList.Count() > 0) people.SetDirection(this); // Ändrar direction efter interaction
+                indexList.Add(people.Id);
             }
             else
             {
-                CityGrid.Add((people.PosX, people.PosY), new List<int> { Peoples.IndexOf(people) });
+                CityGrid.Add((people.PosX, people.PosY), new List<int> { people.Id }); // Lägger till nuvarande person i en ny lista på sin x & y pos
+            }
+            if (people.MaxY > this.Height) // Kallar på prison interaction
+            {
+                people.Interaction(people, this);
             }
         }
 
-        private void CreatePeople(List<People> peoples, int ammountOfCitizen, int ammountOfTheifs, int ammountOfCops)
+        public void CreatePeople(List<People> peoples, int ammountOfCitizen, int ammountOfTheifs, int ammountOfCops)
         {
-            Random rnd = new Random();
 
             for (int i = 0; i < ammountOfCitizen; i++)
             {
-                peoples.Add(new Citizen($"Medborgare{i}", peoples.Count(), rnd.Next(1, Width), rnd.Next(1, Height), rnd.Next(-1, 2), rnd.Next(-1, 2)));
+                peoples.Add(new Citizen($"{Helpers.GetName()}", peoples.Count(), this));
             }
             for (int i = 0; i < ammountOfTheifs; i++)
             {
-                peoples.Add(new Robber($"Tjuv{i}", peoples.Count(), rnd.Next(1, Width), rnd.Next(1, Height), rnd.Next(-1, 2), rnd.Next(-1, 2)));
+                peoples.Add(new Robber($"{Helpers.GetName()}", peoples.Count(), this));
             }
             for (int i = 0; i < ammountOfCops; i++)
             {
-                peoples.Add(new Cop($"Polis{i}", peoples.Count(), rnd.Next(1, Width), rnd.Next(1, Height), rnd.Next(-1, 2), rnd.Next(-1, 2)));
+                peoples.Add(new Cop($"{Helpers.GetName()}", peoples.Count(), this));
             }
-        }
-
-    }
-    class Prison: Location
-    {
-        public Prison(int height, int width, int startPosX, int startPosY) : base (width, height, startPosX, startPosY)
-        {
-            
         }
     }
 }

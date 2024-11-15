@@ -4,47 +4,28 @@
     {
         static void Main(string[] args)
         {
-            //Console.WriteLine("Test");
-            //List<People> peoples = new List<People>();
-            //peoples.Add (new Citizen("Oscar", 1, 1 , 1 ,1));
-            //peoples.Add(new Citizen("Emil", 1, 1, 1, 1));
-            //peoples.Add(new Citizen("Johan", 1, 1, 1, 1));
-            //peoples.Add(new Citizen("Emil 2", 1, 1, 1, 1));
-
-            //foreach (People people in peoples)
-            //{
-            //    Console.WriteLine(people.Name + " ");
-            //    foreach (Goods goods in people.Goods)
-            //    {
-            //        Console.Write(goods.ItemName + " ");
-            //    }
-            //}
-            //Console.ReadLine();
             Console.CursorVisible = false;
-            City city = new City(12, 12, 12, 20, 80, 0, 0);
-            Prison prison = new Prison(20, 10, 0, 22);
-            city.DisplayLocation();
-            prison.DisplayLocation();
             
+            // Instansierat subklass okbjekten city
+            City city = new City(20, 10, 5, 20, 80, 0, 0);
+
+            // Ritar upp det visuella i konsollen från objekten
+            Render.DisplayLocation(city);
+            Render.DisplayStatus(city);
+            city.InitCityGrid();
+
             while (true)
             {
+                // Går igenom alla element i city.Peoples lista
                 foreach (People people in city.Peoples)
                 {
-
+                    // Kallar på metoder för att köra program
                     people.Move(city);
+                    Render.DisplayPeople(people);
                     city.UpdateCityGrid(people);
-                    city.DisplayPeople(people);
+                    Render.NewsFeed(city, (city.Prison[0] + 6));
                 }
-                //bool test = (city.CityGrid.TryGetValue((1, 1), out List<int> index));
-                //Console.WriteLine(test);
-                //for (int i = 0; i < City.Peoples.Count; i++)
-                //{
-                //    Helpers.Movement2(i, City);
-                //    City.DisplayPeople(i);
-
-                //}
-
-                Thread.Sleep(200);
+                Thread.Sleep(100);
             }
         }
     }

@@ -14,6 +14,8 @@ namespace CopsAndRobbers
         public int PosY { get; set; }
         public int DirX { get; set; }
         public int DirY { get; set; }
+
+
         public List<Goods> Inventory { get; set; }
 
         public People(string name, int id, int posX, int posY, int dirX, int dirY)
@@ -25,9 +27,13 @@ namespace CopsAndRobbers
             DirX = dirX; 
             DirY = dirY; 
         }
+
+       
+
         public void Move(Location location)
         {
             Random rnd = new Random();
+            Dir = location.StartPosY;
             if (PosX + DirX == 0 || PosX + DirX == location.Width ||
                 PosY + DirY == 0 || PosY + DirY == location.Height ||
                 (DirX == 0 && DirY == 0))
@@ -46,6 +52,10 @@ namespace CopsAndRobbers
                 
             }
         }
+        public virtual void Interaction(List<People> peoples)
+        {
+
+        }
     }
 
     class Citizen : People
@@ -63,6 +73,11 @@ namespace CopsAndRobbers
             goods.Add(new Belongings("dosh"));
             goods.Add(new Belongings("watch"));
         }
+
+        public override void Interaction(List<People> peoples)
+        {
+
+        }
     }
     class Robber : People
     {
@@ -70,11 +85,20 @@ namespace CopsAndRobbers
         {
 
         }
+        public override void Interaction(List<People> peoples) 
+        {
+        
+        }
     }
 
     class Cop : People
     {
         public Cop(string name, int id, int posX, int posY, int dirX, int dirY) : base(name, id, posX, posY, dirX, dirY)
+        {
+
+        }
+
+        public override void Interaction(List<People> peoples)
         {
 
         }
